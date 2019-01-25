@@ -3,6 +3,27 @@ class Api::ProductsController < ApplicationController
 
   def index
     @products = Product.all
+    search_term = params[:search]
+    if search_term
+      @products = Product.where("name LIKE ?", "%#{search_term}%")
+    end 
+
+    discount = params[:discount]
+    if discount
+      @products = Product.where("price < ?", 10) 
+    end
+
+    sort_term = params[:sort]
+    sort_order = params[:sort_order]
+    if sort_term == "price"
+      if sort_order == "desc"
+        @products = @products.order(price: :desc)
+      else
+        @products = @products.order(:price)
+      end  
+    else 
+      @products = @products.order(:id)  
+    end   
     render 'index.json.jbuilder'
   end
 
@@ -15,11 +36,10 @@ class Api::ProductsController < ApplicationController
     @product = Product.new(
       name: params["name"], 
       price: params["price"], 
-      image_url: params["image_url"],
       description: params["description"])
 
     if @product.save
-      render 'create.json.jbuilder'
+      render 'show.json.jbuilder'
     else
       render json: {errors: @product.errors.full_messages}, status: :unprocessable_entity
     end    
@@ -30,10 +50,13 @@ class Api::ProductsController < ApplicationController
     @product = Product.find(params[:id])
     @product.name = params["name"] || @product.name
     @product.price = params["price"] || @product.price
-    @product.image_url = params["image_url"] || @product.image_url
     @product.description = params["description"] || @product.description
-    @product.save
-    render 'show.json.jbuilder'
+    
+    if @product.save
+      render 'show.json.jbuilder'
+    else
+      render json: {errors: @product.errors.full_messages}, status: :unprocessable_entity
+    end 
   end
 
   def destroy
