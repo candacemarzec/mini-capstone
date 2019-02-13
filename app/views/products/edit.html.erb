@@ -1,0 +1,27 @@
+<h1>Edit Product</h1>
+  <form action="/products/<%= @product.id %>"  method="patch">
+    <input type="hidden" name="_method" value= "patch" />
+    <div>
+      Name: <input type="text" name= "<%= @product.name %>">
+    </div> 
+    <div>
+      Description: <input type="text" name= "<%= @product.description %>">
+    </div>
+    <div>
+      Price: <input type= "text" name= "<%= @product.price %>">
+     </div> 
+       <div>
+          Choose a Supplier:
+          <select> name="supplier_id">
+            <% @suppliers.each do |supplier| %>
+            <% if @product.supplier == supplier %>
+                <option> selected value="<%= supplier.id %>"><%= supplier.name %></option>
+                <% else %>
+                <option value="<%= supplier.id %>"><%= supplier.name %>
+                </option>
+              <% end %>
+            <% end %>    
+          </select>
+       </div>
+    <input type="submit" value="Update Product">
+   </form>

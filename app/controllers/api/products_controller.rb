@@ -1,5 +1,6 @@
 class Api::ProductsController < ApplicationController
 
+  before_action :authenticate_admin, except: [:index, :show]
 
   def index
     @products = Product.all
@@ -23,9 +24,16 @@ class Api::ProductsController < ApplicationController
       end  
     else 
       @products = @products.order(:id)  
-    end   
+    end
+
+    if params[:category]
+      category = Category.find_by(name: params[:category])
+      @products = category.products
+    end
+
     render 'index.json.jbuilder'
   end
+
 
   def show
     @product = Product.find_by(id: params["id"])
